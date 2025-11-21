@@ -17,7 +17,6 @@ struct ContentView: View {
                     .fontWeight(.bold)
                 Spacer()
                 Button(action: {
-                    // Settings or Quit
                     NSApplication.shared.terminate(nil)
                 }) {
                     Image(systemName: "gearshape.fill")
@@ -75,11 +74,11 @@ struct ContentView: View {
         pasteboard.clearContents()
         pasteboard.setString(item.content, forType: .string)
         
-        // Simulate Cmd+V (Requires Accessibility permissions, skipping for MVP simplicity, 
-        // user can just click to copy to clipboard then paste manually if needed, 
-        // but ideally we automate this).
-        // For now, we just put it back on top of clipboard so user can paste.
-        print("Copied to clipboard: \(item.content)")
+        // Hide the window
+        NSApp.hide(nil)
+        
+        // Auto-paste
+        PasteService.paste()
     }
     
     private func togglePin(_ item: ClipboardItem) {

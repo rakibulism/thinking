@@ -3,7 +3,18 @@ import SwiftData
 
 @main
 struct PulseClipApp: App {
-    @StateObject private var clipboardManager = ClipboardManager()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+    var body: some Scene {
+        Settings {
+            EmptyView()
+        }
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    var statusBarController: StatusBarController?
+    var clipboardManager = ClipboardManager()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -17,16 +28,15 @@ struct PulseClipApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
-    var body: some Scene {
-        MenuBarExtra("PulseClip", systemImage: "paperclip.circle.fill") {
-            ContentView()
-                .modelContainer(sharedModelContainer)
-                .environmentObject(clipboardManager)
-                .onAppear {
-                    clipboardManager.setContext(sharedModelContainer.mainContext)
-                }
-        }
-        .menuBarExtraStyle(.window) // Allows for a rich view
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Initialize Clipboard Manager context
+        clipboardManager.setContext(sharedModelContainer.mainContext)
+        
+        // Initialize Status Bar Controller
+        statusBarController = StatusBarController(
+            modelContainer: sharedModelContainer,
+            clipboardManager: clipboardManager
+        )
     }
 }
