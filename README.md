@@ -1,36 +1,34 @@
-# Personal Landing Page
+# Future Vision (macOS)
 
-A modern, premium personal portfolio website designed to showcase skills and projects with style.
+A premium native macOS application built with SwiftUI.
 
 ## ✨ Features
 
-- **Premium Aesthetics**: Deep dark mode with vibrant neon accents and glassmorphism effects.
-- **Interactive Elements**: 
-  - Dynamic typing text effect in the hero section.
-  - Smooth hover animations for cards and buttons.
-  - Reveal-on-scroll animations for all sections.
-- **Responsive Design**: Fully responsive layout that looks great on desktop and mobile.
-- **Clean Code**: Built with semantic HTML5, modern Vanilla CSS, and lightweight JavaScript.
+- **Native Performance**: Built with Swift and SwiftUI for maximum speed and efficiency.
+- **Modern Design**: Dark mode interface with glassmorphism and vibrant gradients.
+- **Interactive UI**: Custom hover effects and smooth animations.
 
-## 🚀 Getting Started
+## 🚀 Running the App
 
-No build process required! This is a static website.
+### Requirements
+- macOS 14.0 or later
+- Xcode 15+ (recommended) or Swift 5.9+
 
-1. Clone the repository or download the files.
-2. Open `index.html` in your web browser.
+### Instructions
 
-## 🛠️ Technologies Used
+1. **Open in Xcode**:
+   Double-click `Package.swift` to open the project in Xcode. Press `Cmd + R` to run.
 
-- **HTML5**: Semantic structure.
-- **CSS3**: Flexbox, Grid, CSS Variables, Keyframe Animations.
-- **JavaScript**: DOM manipulation, Intersection Observer API.
-- **Fonts**: [Outfit](https://fonts.google.com/specimen/Outfit) from Google Fonts.
+2. **Run via Terminal**:
+   ```bash
+   swift run
+   ```
 
 ## 📂 Project Structure
 
-- `index.html`: Main content and structure.
-- `style.css`: Styles, variables, and animations.
-- `script.js`: Interactivity and logic.
+- `Package.swift`: Project configuration.
+- `Sources/App/App.swift`: Application entry point.
+- `Sources/App/ContentView.swift`: Main user interface.
 
 ---
-© 2024 Alex Dev. All rights reserved.
+© 2024 Future Vision. All rights reserved.
