@@ -1,13 +1,32 @@
 import SwiftUI
+import SwiftData
 
 @main
-struct FutureVisionApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .frame(minWidth: 800, minHeight: 600)
-                .background(Color(red: 0.04, green: 0.04, blue: 0.04)) // Dark background
+struct PulseClipApp: App {
+    @StateObject private var clipboardManager = ClipboardManager()
+    
+    var sharedModelContainer: ModelContainer = {
+        let schema = Schema([
+            ClipboardItem.self,
+        ])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+        do {
+            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
         }
-        .windowStyle(.hiddenTitleBar)
+    }()
+
+    var body: some Scene {
+        MenuBarExtra("PulseClip", systemImage: "paperclip.circle.fill") {
+            ContentView()
+                .modelContainer(sharedModelContainer)
+                .environmentObject(clipboardManager)
+                .onAppear {
+                    clipboardManager.setContext(sharedModelContainer.mainContext)
+                }
+        }
+        .menuBarExtraStyle(.window) // Allows for a rich view
     }
 }

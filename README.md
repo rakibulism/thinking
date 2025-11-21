@@ -1,34 +1,37 @@
-# Future Vision (macOS)
+# PulseClip (macOS)
 
-A premium native macOS application built with SwiftUI.
+A tiny menu-bar clipboard that keeps the context of every copy.
 
 ## ✨ Features
 
-- **Native Performance**: Built with Swift and SwiftUI for maximum speed and efficiency.
-- **Modern Design**: Dark mode interface with glassmorphism and vibrant gradients.
-- **Interactive UI**: Custom hover effects and smooth animations.
+- **Context Visualization**: See the source app and type of every clip.
+- **Smart Tagging**: Auto-tags links, code, and emails.
+- **Timeline View**: A clean, scrollable history of your clipboard.
+- **Native Performance**: Built with SwiftUI and SwiftData.
 
 ## 🚀 Running the App
 
-### Requirements
-- macOS 14.0 or later
-- Xcode 15+ (recommended) or Swift 5.9+
+> [!NOTE]
+> Requires macOS 14.0 (Sonoma) or later.
 
-### Instructions
+### Recommended: Open in Xcode
+1. Double-click `Package.swift` to open the project in Xcode.
+2. Ensure the target is set to "My Mac".
+3. Press `Cmd + R` to build and run.
 
-1. **Open in Xcode**:
-   Double-click `Package.swift` to open the project in Xcode. Press `Cmd + R` to run.
-
-2. **Run via Terminal**:
-   ```bash
-   swift run
-   ```
+### Terminal
+```bash
+swift run
+```
+*Note: If you encounter linker errors in the terminal, please use the Xcode method above.*
 
 ## 📂 Project Structure
 
 - `Package.swift`: Project configuration.
-- `Sources/App/App.swift`: Application entry point.
-- `Sources/App/ContentView.swift`: Main user interface.
+- `Sources/App/App.swift`: MenuBarExtra entry point.
+- `Sources/App/ClipboardManager.swift`: Clipboard monitoring logic.
+- `Sources/App/ContentView.swift`: Main timeline UI.
+- `Sources/App/ItemModel.swift`: SwiftData model.
 
 ---
-© 2024 Future Vision. All rights reserved.
+© 2024 PulseClip. All rights reserved.

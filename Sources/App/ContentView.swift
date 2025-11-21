@@ -1,181 +1,144 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @State private var isHoveringButton = false
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \ClipboardItem.timestamp, order: .reverse) private var items: [ClipboardItem]
+    @EnvironmentObject var clipboardManager: ClipboardManager
+    
+    @State private var hoverItemId: UUID?
     
     var body: some View {
-        ZStack {
-            // Background
-            Color(red: 0.04, green: 0.04, blue: 0.04)
-                .ignoresSafeArea()
-            
-            // Gradient Sphere
-            Circle()
-                .fill(
-                    RadialGradient(
-                        gradient: Gradient(colors: [Color(red: 0.42, green: 0.36, blue: 0.91).opacity(0.6), .clear]),
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 300
-                    )
-                )
-                .frame(width: 600, height: 600)
-                .offset(x: 200, y: -100)
-                .blur(radius: 60)
-            
-            VStack(spacing: 0) {
-                // Navbar
-                HStack {
-                    Text("Vision.")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 30) {
-                        Text("Home").foregroundColor(.white)
-                        Text("Features").foregroundColor(.gray)
-                        Text("About").foregroundColor(.gray)
-                        
-                        Button(action: {}) {
-                            Text("Get Started")
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color(red: 0.42, green: 0.36, blue: 0.91))
-                                .foregroundColor(.white)
-                                .cornerRadius(25)
-                        }
-                        .buttonStyle(.plain)
-                    }
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("PulseClip")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                Spacer()
+                Button(action: {
+                    // Settings or Quit
+                    NSApplication.shared.terminate(nil)
+                }) {
+                    Image(systemName: "gearshape.fill")
+                        .foregroundColor(.gray)
                 }
-                .padding(.horizontal, 40)
-                .padding(.vertical, 20)
-                .background(.ultraThinMaterial)
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 60) {
-                        // Hero Section
-                        HStack {
-                            VStack(alignment: .leading, spacing: 20) {
-                                Text("Welcome to the Future")
-                                    .foregroundColor(Color(red: 0.64, green: 0.61, blue: 1.0))
-                                    .fontWeight(.semibold)
-                                
-                                Text("Innovate Today")
-                                    .font(.system(size: 64, weight: .bold))
-                                    .foregroundColor(.white)
-                                
-                                Text("We deliver excellence.")
-                                    .font(.title2)
-                                    .foregroundColor(.gray)
-                                
-                                HStack(spacing: 20) {
-                                    Button(action: {}) {
-                                        Text("Explore Features")
-                                            .fontWeight(.semibold)
-                                            .padding(.horizontal, 25)
-                                            .padding(.vertical, 12)
-                                            .background(Color(red: 0.42, green: 0.36, blue: 0.91))
-                                            .foregroundColor(.white)
-                                            .cornerRadius(30)
-                                    }
-                                    .buttonStyle(.plain)
-                                    
-                                    Button(action: {}) {
-                                        Text("Contact Us")
-                                            .fontWeight(.semibold)
-                                            .padding(.horizontal, 25)
-                                            .padding(.vertical, 12)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 30)
-                                                    .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                                            )
-                                            .foregroundColor(.white)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.top, 60)
-                            
-                            Spacer()
-                            
-                            // Glass Card Visual
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(.ultraThinMaterial)
-                                    .frame(width: 300, height: 200)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                                    )
-                                    .rotationEffect(.degrees(-5))
-                                
-                                Text("🚀 Success")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .padding(.horizontal, 60)
-                        
-                        // Features Section
-                        VStack(alignment: .leading) {
-                            Text("Our Features")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.bottom, 40)
-                            
-                            HStack(spacing: 30) {
-                                FeatureCard(title: "High Performance", description: "Optimized for speed and efficiency.", color1: Color(red: 1.0, green: 0.42, blue: 0.42), color2: Color(red: 1.0, green: 0.79, blue: 0.34))
-                                FeatureCard(title: "Secure Design", description: "Built with security first principles.", color1: Color(red: 0.33, green: 0.63, blue: 1.0), color2: Color(red: 0.37, green: 0.15, blue: 0.8))
-                                FeatureCard(title: "Scalable", description: "Grow your business without limits.", color1: Color(red: 0.28, green: 0.86, blue: 0.98), color2: Color(red: 0.11, green: 0.82, blue: 0.63))
-                            }
-                        }
-                        .padding(.horizontal, 60)
-                        
-                        Spacer().frame(height: 50)
-                    }
-                }
+                .buttonStyle(.plain)
             }
+            .padding()
+            .background(Color(nsColor: .windowBackgroundColor))
+            
+            // Timeline
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(items) { item in
+                        ClipboardCard(item: item, isHovering: hoverItemId == item.id)
+                            .onHover { hovering in
+                                hoverItemId = hovering ? item.id : nil
+                            }
+                            .onTapGesture {
+                                pasteItem(item)
+                            }
+                    }
+                }
+                .padding()
+            }
+            .frame(maxHeight: 500)
         }
+        .frame(width: 350)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+    
+    private func pasteItem(_ item: ClipboardItem) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(item.content, forType: .string)
+        
+        // Simulate Cmd+V (Requires Accessibility permissions, skipping for MVP simplicity, 
+        // user can just click to copy to clipboard then paste manually if needed, 
+        // but ideally we automate this).
+        // For now, we just put it back on top of clipboard so user can paste.
+        print("Copied to clipboard: \(item.content)")
     }
 }
 
-struct FeatureCard: View {
-    let title: String
-    let description: String
-    let color1: Color
-    let color2: Color
+struct ClipboardCard: View {
+    let item: ClipboardItem
+    let isHovering: Bool
     
     var body: some View {
-        VStack(alignment: .leading) {
-            LinearGradient(gradient: Gradient(colors: [color1, color2]), startPoint: .topLeading, endPoint: .bottomTrailing)
-                .frame(height: 120)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text(title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+        HStack(alignment: .top, spacing: 12) {
+            // Icon / Type Indicator
+            ZStack {
+                Circle()
+                    .fill(typeColor(item.type).opacity(0.2))
+                    .frame(width: 32, height: 32)
                 
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                Text("Learn More →")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color(red: 0.64, green: 0.61, blue: 1.0))
-                    .padding(.top, 10)
+                Image(systemName: typeIcon(item.type))
+                    .foregroundColor(typeColor(item.type))
+                    .font(.system(size: 14))
             }
-            .padding(20)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(item.sourceApp)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text(item.timestamp, style: .time)
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+                
+                Text(item.content)
+                    .font(.system(size: 13))
+                    .lineLimit(3)
+                    .foregroundColor(.primary)
+                
+                if !item.tags.isEmpty {
+                    HStack {
+                        ForEach(item.tags, id: \.self) { tag in
+                            Text("#\(tag)")
+                                .font(.caption2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(4)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+            }
         }
-        .background(.ultraThinMaterial)
-        .cornerRadius(20)
+        .padding(12)
+        .background(isHovering ? Color.accentColor.opacity(0.1) : Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(12)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isHovering ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
         )
+        .animation(.easeInOut(duration: 0.2), value: isHovering)
+    }
+    
+    func typeColor(_ type: String) -> Color {
+        switch type {
+        case "link": return .blue
+        case "code": return .purple
+        case "email": return .orange
+        default: return .gray
+        }
+    }
+    
+    func typeIcon(_ type: String) -> String {
+        switch type {
+        case "link": return "link"
+        case "code": return "chevron.left.forwardslash.chevron.right"
+        case "email": return "envelope"
+        default: return "doc.text"
+        }
     }
 }

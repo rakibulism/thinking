@@ -2,9 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "FutureVision",
+    name: "PulseClip",
     platforms: [
         .macOS(.v14)
+    ],
+    products: [
+        .executable(name: "PulseClip", targets: ["App"])
     ],
     targets: [
         .executableTarget(
